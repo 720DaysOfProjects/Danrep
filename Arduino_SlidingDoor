@@ -1,0 +1,132 @@
+
+  //PINS------------------------------
+  const int LED = 9;
+  //Initiate Closing/Opening Door
+  const int MOC = 10;
+  //Power Control/Disconnect Motor
+  const int PWR = 11;
+  //Close SENSOR
+  const int Closed = 3;
+  //Open Sensor
+  const int Open = 4;
+  //Request to Close Door(HIGH = OPEN, LOW = CLOSE)
+  const int doorDig = 5;
+  //Button
+ // ------------------------------------
+
+  //values for inputs
+  int SO;
+  int SC;
+  int DIG; 
+
+  //Time
+  int t = 0;
+
+void setup() 
+{
+  Serial.begin(9600);
+  
+  //Inputs
+  pinMode(Closed, INPUT);
+  pinMode(Open, INPUT);
+  pinMode(doorDig, INPUT);
+  //Outputs
+  pinMode(MOC, OUTPUT);
+  pinMode(LED, OUTPUT);
+  pinMode(PWR, OUTPUT);
+}
+
+void loop() 
+{
+  //Give Value to Input Variables-------
+  if(digitalRead(Closed))
+  {
+    SC = 1;
+  }else
+  {
+    SC = 0;
+  }
+
+  if(digitalRead(Open))
+  {
+    SO = 1; 
+  }else
+  {
+    SO = 0;
+  }
+
+  if(digitalRead(doorDig))
+  {
+    DIG = 1;
+  }else
+  {
+    DIG = 0;
+  }
+  //------------------------------------
+if(t < 60) //Makes sure that motor runs for less than 15 seconds
+{
+  if(!DIG && !SO && !SC)
+  {
+    digitalWrite(MOC, 1); //CLOSE
+    digitalWrite(PWR, 0);
+    t++;
+    delay(250);
+  }
+  
+
+  if(DIG && !SO && !SC)
+  {
+    digitalWrite(MOC, 0); //OPEN
+    digitalWrite(PWR, 0);
+    t++;
+    delay(250);
+  }
+
+  if(!DIG && SO && !SC)
+  {
+    digitalWrite(MOC, 1); //CLOSE
+    digitalWrite(PWR, 0);
+    t = 0;
+  }
+
+  if(DIG && !SO && SC)
+  {
+    digitalWrite(MOC, 0); //OPEN
+    digitalWrite(PWR, 0);
+    t = 0;
+  }
+
+  if(!DIG && !SO && SC)
+  {
+    digitalWrite(MOC, 1); //OPEN
+    digitalWrite(PWR, 1);
+    t = 0;
+  }
+
+  if(DIG && SO && !SC)
+  {
+    digitalWrite(MOC, 0); //CLOSE
+    digitalWrite(PWR, 1);
+    t = 0;
+  }
+
+  if(!DIG && SO && SC)
+  {
+    digitalWrite(PWR, 1);
+    digitalWrite(LED, 0);
+    t = 0;
+  }
+
+  if(DIG && SO && SC)
+  {
+    digitalWrite(PWR, 1);
+    digitalWrite(LED, 0);
+    t = 0;
+  }
+}else
+{
+  digitalWrite(PWR, 1);
+  digitalWrite(LED, 0);
+}
+Serial.println(DIG);
+}
